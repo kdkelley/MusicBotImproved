@@ -9,6 +9,7 @@ import logging
 import tempfile
 import traceback
 import subprocess
+import asyncio
 
 from shutil import disk_usage, rmtree
 from base64 import b64decode
@@ -282,7 +283,7 @@ def req_ensure_encoding():
 
         import io
         sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding='utf8', line_buffering=True)
-        # only slightly evil    
+        # only slightly evil
         sys.__stdout__ = sh.stream = sys.stdout
 
         if os.environ.get('PYCHARM_HOSTED', None) not in (None, '0'):
@@ -333,10 +334,13 @@ def opt_check_disk_space(warnlimit_mb=200):
 
 #################################################
 
+async def coro_func():
+    print("test")
+    return await asyncio.sleep(1, 42)
+
 def pyexec(pycom, *args, pycom2=None):
     pycom2 = pycom2 or pycom
     os.execlp(pycom, pycom2, *args)
-
 
 def main():
     # TODO: *actual* argparsing
@@ -369,6 +373,10 @@ def main():
 
             sh.terminator = ''
             sh.terminator = '\n'
+
+            # future = asyncio.run_coroutine_threadsafe(coro_func(), loop)
+            # Wait for the result:
+            # result = future.result()
 
             m.run()
 
