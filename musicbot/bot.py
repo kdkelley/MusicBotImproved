@@ -14,6 +14,7 @@ import math
 import re
 import threading
 import msvcrt
+import keyboard
 
 import aiohttp
 import discord
@@ -899,7 +900,12 @@ class MusicBot(discord.Client):
         except: pass
 
     async def inputTest(self):
-        print("test")
+        # lfunc = log.debug
+        while True:
+            print("polling")
+            if keyboard.is_pressed(']'):
+                print("you pressed the key")
+            await asyncio.sleep(1)
         # while True:
             # msvcrt.getche()
             # await asyncio.sleep(10)
@@ -909,7 +915,10 @@ class MusicBot(discord.Client):
         try:
 
             # self.loop.run_coroutine_threadsafe(self.inputTest(), self.loop)
-            self.loop.run_until_complete(self.start(*self.config.auth)),
+            # self.inputTest.before_loop()
+            self.loop.create_task(self.inputTest())
+            # self.run()
+            self.loop.run_until_complete(self.start(*self.config.auth))
 
         except discord.errors.LoginFailure:
             # Add if token, else

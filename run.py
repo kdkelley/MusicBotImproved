@@ -10,6 +10,9 @@ import tempfile
 import traceback
 import subprocess
 import asyncio
+import keyboard
+from threading import Thread
+from multiprocessing import Process
 
 from shutil import disk_usage, rmtree
 from base64 import b64decode
@@ -334,13 +337,20 @@ def opt_check_disk_space(warnlimit_mb=200):
 
 #################################################
 
-async def coro_func():
-    print("test")
-    return await asyncio.sleep(1, 42)
+def coro_func():
+    print("coro_func began running")
+    while True:
+        if keyboard.is_pressed(']'):
+            print("you pressed the key")
+        if keyboard.is_pressed('q'):
+            break
 
 def pyexec(pycom, *args, pycom2=None):
     pycom2 = pycom2 or pycom
     os.execlp(pycom, pycom2, *args)
+
+def main_delegator(m):
+    asyncio.gather(m.run(), coro_func(m))
 
 def main():
     # TODO: *actual* argparsing
@@ -374,11 +384,23 @@ def main():
             sh.terminator = ''
             sh.terminator = '\n'
 
-            # future = asyncio.run_coroutine_threadsafe(coro_func(), loop)
+            # thread = Thread(target = coro_func, args = ())
+            # thread.start()
+            # thread.join()
+
+            # task = loop.create_task(coro_func())
+
+            # asyncio.run_coroutine_threadsafe(coro_func(), loop)
             # Wait for the result:
             # result = future.result()
 
+            # m.create_task(coro_func())
+
             m.run()
+
+            # Process(target=m.run).start()
+            # Process(target=coro_func).start()
+            # loop.run_until_complete(task)
 
         except SyntaxError:
             log.exception("Syntax error (this is a bug, not your fault)")
